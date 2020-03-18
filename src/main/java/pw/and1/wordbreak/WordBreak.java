@@ -33,6 +33,14 @@ public class WordBreak {
         }
     }
 
+    public static WordBreakBuilder newBuilder() {
+        return new WordBreakBuilder(false);
+    }
+
+    public static WordBreakBuilder newDefaultBuilder() {
+        return new WordBreakBuilder(true);
+    }
+
     private Set<String> dictionary;
     private Map<String, Set<String>> actualWord;
     private int maxLength;
@@ -53,14 +61,6 @@ public class WordBreak {
             this.dictionary.add(newWord);
             this.maxLength = Math.max(maxLength, newWord.length());
         }
-    }
-
-    public static WordBreakBuilder newBuilder() {
-        return new WordBreakBuilder(false);
-    }
-
-    public static WordBreakBuilder newDefaultBuilder() {
-        return new WordBreakBuilder(true);
     }
 
     public List<String> wordBreak(final String sentence) {
