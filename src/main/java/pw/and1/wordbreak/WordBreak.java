@@ -109,8 +109,6 @@ public class WordBreak {
                 List<List<String>> r = wordBreak(sub, subLen - 1, true);
                 r.stream().filter(l -> !l.isEmpty()).map(l -> String.join(" ", l)).forEach(nodes::add);
             }
-
-
             if (mismatch) {
                 mismatches.append(sub);
             } else {
