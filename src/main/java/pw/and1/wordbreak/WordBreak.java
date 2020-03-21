@@ -2,69 +2,53 @@ package pw.and1.wordbreak;
 
 import pw.and1.wordbreak.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.StringJoiner;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class WordBreak {
-    public static class WordBreakBuilder {
-        private Set<String> dictionary;
+    public enum SearchMode {
+        ALL, ONLY_PUBLIC, ONLY_USER;
+    }
 
-        private WordBreakBuilder(boolean useDefault) {
-            dictionary = new HashSet<>();
-            if (useDefault) {
-                Collections.addAll(dictionary, "i","like","sam","sung","samsung","mobile","ice","cream","man go");
-            }
+    public static class WordBreakBuilder {
+        private Dictionary publicDictionary;
+        private Dictionary userDictionary;
+
+        public WordBreakBuilder withPublicDictionary(Dictionary dictionary) {
+            this.publicDictionary = dictionary;
+            return this;
         }
 
-        public WordBreakBuilder appendDictionary(String... words) {
-            Arrays.stream(words).peek(String::trim).forEach(dictionary::add);
+        public WordBreakBuilder withUserDictionary(Dictionary dictionary) {
+            this.userDictionary = dictionary;
             return this;
         }
 
         public WordBreak build() {
-            return new WordBreak(dictionary);
+            return new WordBreak(publicDictionary, userDictionary);
         }
     }
 
     public static WordBreakBuilder newBuilder() {
-        return new WordBreakBuilder(false);
+        return new WordBreakBuilder();
     }
 
-    public static WordBreakBuilder newDefaultBuilder() {
-        return new WordBreakBuilder(true);
+    private Dictionary publicDictionary;
+    private Dictionary userDictionary;
+
+    private WordBreak(Dictionary publicDictionary, Dictionary userDictionary) {
+        this.publicDictionary = publicDictionary;
+        this.userDictionary = userDictionary;
     }
 
-    private Set<String> dictionary;
-    private Map<String, Set<String>> actualWord;
-    private int maxLength;
-
-    private WordBreak(Set<String> dictionary) {
-        this.dictionary = new HashSet<>();
-        this.actualWord = new HashMap<>();
-        for (String word : dictionary) {
-            String newWord = word.replaceAll("\\s", "");
-            Set<String> words = this.actualWord.get(newWord);
-            if (words != null) {
-                words.add(word);
-            } else if (!newWord.equals(word)) {
-                words = new HashSet<>();
-                words.add(word);
-                this.actualWord.put(newWord, words);
-            }
-            this.dictionary.add(newWord);
-            this.maxLength = Math.max(maxLength, newWord.length());
-        }
-    }
-
-    public List<String> wordBreak(final String sentence) {
-        List<List<String>> result = wordBreak(sentence, maxLength, false);
+    public List<String> wordBreak(final String sentence, SearchMode mode) {
+        Dictionary dictionary = selectDictionary(mode);
+        List<List<String>> result = wordBreak(sentence, dictionary, dictionary.getMaxLength(), false);
         return result.stream().map(l -> String.join(" ", l)).collect(Collectors.toList());
     }
 
@@ -76,52 +60,46 @@ public class WordBreak {
      * @param isSub
      * @return
      */
-    private List<List<String>> wordBreak(final String sentence, int max, boolean isSub) {
+    private List<List<String>> wordBreak(final String sentence, Dictionary dictionary, int max, boolean isSub) {
         List<List<String>> result = new ArrayList<>();
         if (sentence == null || sentence.isEmpty()) {
             return result;
         }
 
         StringBuffer mismatches = new StringBuffer();
-        int len = sentence.length();
         int pointer = 0;
+        int len = sentence.length();
         while (pointer < len) {
             Set<String> nodes = new HashSet<>();
             int upper = Math.min(len, pointer + max);
-            String sub = sentence.substring(pointer, upper);
-            int subLen = sub.length();
-            boolean mismatch;
+            String sub;
+            Set<String> searchResults;
 
-            while (mismatch = !dictionary.contains(sub)) {
-                if (subLen == 1) {
-                    break;
-                }
-                sub = sub.substring(0, subLen - 1);
-                subLen = sub.length();
-            }
+            do {
+                sub = sentence.substring(pointer, upper);
+                searchResults = dictionary.search(sub);
+                upper --;
+            } while (searchResults.isEmpty() && upper > pointer);
 
-            if (mismatch && isSub) {
+            // 子串中不处理新词
+            if (searchResults.isEmpty() && isSub) {
                 result.clear();
                 return result;
             }
 
+            int subLen = sub.length();
             if (subLen > 1) {
-                List<List<String>> r = wordBreak(sub, subLen - 1, true);
+                List<List<String>> r = wordBreak(sub, dictionary, subLen - 1, true);
                 r.stream().filter(l -> !l.isEmpty()).map(l -> String.join(" ", l)).forEach(nodes::add);
             }
-            if (mismatch) {
+            if (searchResults.isEmpty()) {
                 mismatches.append(sub);
             } else {
                 if (mismatches.length() > 0) {
                     result.add(Arrays.asList(mismatches.toString()));
                     mismatches.setLength(0);
                 }
-                Set<String> words = actualWord.get(sub);
-                if (words != null) {
-                    nodes.addAll(words);
-                } else {
-                    nodes.add(sub);
-                }
+                nodes.addAll(searchResults);
                 result.add(new ArrayList<>(nodes));
             }
             pointer += subLen;
@@ -130,5 +108,27 @@ public class WordBreak {
             result.add(Arrays.asList(mismatches.toString()));
         }
         return CollectionUtils.descartes(result);
+    }
+
+    public WordBreak setPublicDictionary(Dictionary dictionary) {
+        publicDictionary = dictionary;
+        return this;
+    }
+
+    public WordBreak setUserDictionary(Dictionary dictionary) {
+        userDictionary = dictionary;
+        return this;
+    }
+
+    private Dictionary selectDictionary(SearchMode mode) {
+        switch (mode) {
+            case ALL:
+                return Dictionary.merge(publicDictionary, userDictionary);
+            case ONLY_USER:
+                return userDictionary;
+            case ONLY_PUBLIC:
+            default:
+                return publicDictionary;
+        }
     }
 }

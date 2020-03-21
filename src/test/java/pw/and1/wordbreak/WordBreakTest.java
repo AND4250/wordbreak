@@ -1,11 +1,32 @@
 package pw.and1.wordbreak;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
 public class WordBreakTest {
+    private Dictionary publicDictionary;
+    private Dictionary userDictionary;
+    private WordBreak wordBreak;
+
+    @Before
+    public void init() {
+        publicDictionary = Dictionary.newBuilder()
+                .appendDictionary("i", "like", "sam", "sung", "samsung", "mobile", "ice", "cream", "man go")
+                .build();
+
+        userDictionary = Dictionary.newBuilder()
+                .appendDictionary("i", "like", "sam", "sung", "mobile", "icecream", "man go", "mango")
+                .build();
+
+        wordBreak = WordBreak.newBuilder()
+                .withPublicDictionary(publicDictionary)
+                .withUserDictionary(userDictionary)
+                .build();
+    }
+
     /**
      * #Stage 1
      * Given a valid sentence without any spaces between the words and a dictionary of valid English words,
@@ -13,14 +34,12 @@ public class WordBreakTest {
      */
     @Test
     public void testWordBreak1() {
-        WordBreak wordBreak = WordBreak.newDefaultBuilder().build();
-
-        List<String> result = wordBreak.wordBreak("ilikesamsungmobile");
+        List<String> result = wordBreak.wordBreak("ilikesamsungmobile", WordBreak.SearchMode.ONLY_PUBLIC);
         Assert.assertTrue(result.size() == 2);
         Assert.assertEquals("i like sam sung mobile", result.get(0));
         Assert.assertEquals("i like samsung mobile", result.get(1));
 
-        result = wordBreak.wordBreak("ilikeicecreamandmango");
+        result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ONLY_PUBLIC);
         Assert.assertTrue(result.size() == 1);
         Assert.assertEquals("i like ice cream and man go", result.get(0));
     }
@@ -32,15 +51,11 @@ public class WordBreakTest {
      */
     @Test
     public void testWordBreak2() {
-        WordBreak wordBreak = WordBreak.newBuilder()
-                .appendDictionary("i", "like", "sam", "sung", "mobile", "icecream", "man go", "mango")
-                .build();
-
-        List<String> result = wordBreak.wordBreak("ilikesamsungmobile");
+        List<String> result = wordBreak.wordBreak("ilikesamsungmobile", WordBreak.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 1);
         Assert.assertEquals("i like sam sung mobile", result.get(0));
 
-        result = wordBreak.wordBreak("ilikeicecreamandmango");
+        result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 2);
         Assert.assertEquals("i like icecream and man go", result.get(0));
         Assert.assertEquals("i like icecream and mango", result.get(1));
@@ -53,16 +68,12 @@ public class WordBreakTest {
      */
     @Test
     public void testWordBreak3() {
-        WordBreak wordBreak = WordBreak.newDefaultBuilder()
-                .appendDictionary("i", "like", "sam", "sung", "mobile", "icecream", "man go", "mango")
-                .build();
-
-        List<String> result = wordBreak.wordBreak("ilikesamsungmobile");
+        List<String> result = wordBreak.wordBreak("ilikesamsungmobile", WordBreak.SearchMode.ALL);
         Assert.assertTrue(result.size() == 2);
         Assert.assertEquals("i like sam sung mobile", result.get(0));
         Assert.assertEquals("i like samsung mobile", result.get(1));
 
-        result = wordBreak.wordBreak("ilikeicecreamandmango");
+        result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ALL);
         Assert.assertTrue(result.size() == 4);
         Assert.assertEquals("i like icecream and man go", result.get(0));
         Assert.assertEquals("i like icecream and mango", result.get(1));
@@ -72,22 +83,24 @@ public class WordBreakTest {
 
     @Test
     public void testWordBreak4() {
-        WordBreak wordBreak = WordBreak.newBuilder()
+        Dictionary userDictionary = Dictionary.newBuilder()
                 .appendDictionary("i", "like", "sam", "sung", "mobile", "icecream", "man go")
                 .build();
+        wordBreak.setUserDictionary(userDictionary);
 
-        List<String> result = wordBreak.wordBreak("ilikeicecreamandmango");
+        List<String> result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 1);
         Assert.assertEquals("i like icecream and man go", result.get(0));
     }
 
     @Test
     public void testWordBreak5() {
-        WordBreak wordBreak = WordBreak.newBuilder()
+        Dictionary userDictionary = Dictionary.newBuilder()
                 .appendDictionary("i", "like", "sam", "sung", "samsung", "mobile", "samsungmobile", "icecream", "man go")
                 .build();
+        wordBreak.setUserDictionary(userDictionary);
 
-        List<String> result = wordBreak.wordBreak("youlikesamsungmobile");
+        List<String> result = wordBreak.wordBreak("youlikesamsungmobile", WordBreak.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 3);
         Assert.assertEquals("you like samsungmobile", result.get(0));
         Assert.assertEquals("you like samsung mobile", result.get(1));
@@ -96,11 +109,12 @@ public class WordBreakTest {
 
     @Test
     public void testWordBreak6() {
-        WordBreak wordBreak = WordBreak.newDefaultBuilder()
+        Dictionary userDictionary = Dictionary.newBuilder()
                 .appendDictionary("i", "like", "sam", "sung", "samsung", "mobile", "samsungmobile", "ice", "cream", "icecream", "mango")
                 .build();
+        wordBreak.setUserDictionary(userDictionary);
 
-        List<String> result = wordBreak.wordBreak("youlikesamsungmobileandicecreamandmango");
+        List<String> result = wordBreak.wordBreak("youlikesamsungmobileandicecreamandmango", WordBreak.SearchMode.ALL);
         Assert.assertTrue(result.size() == 12);
         Assert.assertEquals("you like samsungmobile and icecream and man go", result.get(0));
         Assert.assertEquals("you like samsungmobile and icecream and mango", result.get(1));
