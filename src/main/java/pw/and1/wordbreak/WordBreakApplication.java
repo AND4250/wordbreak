@@ -13,7 +13,7 @@ public class WordBreakApplication {
                 .appendDictionary("i", "like", "sam", "sung", "mobile", "icecream", "man go", "mango")
                 .build();
 
-        WordBreak wordBreak = WordBreak.newBuilder()
+        WordSegmenter wordSegmenter = WordSegmenter.newBuilder()
                 .withPublicDictionary(publicDictionary)
                 .withUserDictionary(userDictionary)
                 .build();
@@ -25,11 +25,11 @@ public class WordBreakApplication {
          */
         System.out.println("------------#Stage 1------------");
         String sentence = "ilikesamsungmobile";
-        List<String> result = wordBreak.wordBreak(sentence, WordBreak.SearchMode.ONLY_PUBLIC);
+        List<String> result = wordSegmenter.wordBreak(sentence, WordSegmenter.SearchMode.ONLY_PUBLIC);
         println(sentence, result);
 
         sentence = "ilikeicecreamandmango";
-        result = wordBreak.wordBreak(sentence, WordBreak.SearchMode.ONLY_PUBLIC);
+        result = wordSegmenter.wordBreak(sentence, WordSegmenter.SearchMode.ONLY_PUBLIC);
         println(sentence, result);
 
         /**
@@ -39,11 +39,11 @@ public class WordBreakApplication {
          */
         System.out.println("------------#Stage 2------------");
         sentence = "ilikesamsungmobile";
-        result = wordBreak.wordBreak(sentence, WordBreak.SearchMode.ONLY_USER);
+        result = wordSegmenter.wordBreak(sentence, WordSegmenter.SearchMode.ONLY_USER);
         println(sentence, result);
 
         sentence = "ilikeicecreamandmango";
-        result = wordBreak.wordBreak(sentence, WordBreak.SearchMode.ONLY_USER);
+        result = wordSegmenter.wordBreak(sentence, WordSegmenter.SearchMode.ONLY_USER);
         println(sentence, result);
 
         /**
@@ -53,11 +53,11 @@ public class WordBreakApplication {
          */
         System.out.println("------------#Stage 3------------");
         sentence = "ilikesamsungmobile";
-        result = wordBreak.wordBreak(sentence, WordBreak.SearchMode.ALL);
+        result = wordSegmenter.wordBreak(sentence, WordSegmenter.SearchMode.ALL);
         println(sentence, result);
 
         sentence = "ilikeicecreamandmango";
-        result = wordBreak.wordBreak(sentence, WordBreak.SearchMode.ALL);
+        result = wordSegmenter.wordBreak(sentence, WordSegmenter.SearchMode.ALL);
         println(sentence, result);
     }
 

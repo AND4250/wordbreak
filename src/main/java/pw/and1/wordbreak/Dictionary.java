@@ -1,10 +1,8 @@
 package pw.and1.wordbreak;
 
-
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
@@ -17,13 +15,13 @@ public class Dictionary {
             this.dictionary = new HashSet<>();
         }
 
-        public DictionaryBuilder appendDictionary(String... words) {
-            Arrays.stream(words).map(String::trim).forEach(dictionary::add);
+        public DictionaryBuilder appendDictionary(Dictionary... dictionaries) {
+            Arrays.stream(dictionaries).filter(Objects::nonNull).map(d -> d.dictionary).forEach(dictionary::addAll);
             return this;
         }
 
-        public DictionaryBuilder appendDictionary(Collection<String> words) {
-            words.stream().map(String::trim).forEach(dictionary::add);
+        public DictionaryBuilder appendDictionary(String... words) {
+            Arrays.stream(words).map(String::trim).forEach(dictionary::add);
             return this;
         }
 
@@ -34,20 +32,6 @@ public class Dictionary {
 
     public static DictionaryBuilder newBuilder() {
         return new DictionaryBuilder();
-    }
-
-    /**
-     * Merge two or more Dictionary objects
-     * 合并两个或多个Dictionary对象
-     *
-     * @param dictionary
-     * @param otherDictionary
-     * @return
-     */
-    public static Dictionary merge(Dictionary dictionary, Dictionary... otherDictionary) {
-        Set<String> merge = new HashSet<>(dictionary.dictionary);
-        Arrays.stream(otherDictionary).filter(Objects::nonNull).map(d -> d.dictionary).forEach(merge::addAll);
-        return Dictionary.newBuilder().appendDictionary(merge).build();
     }
 
     private Set<String> dictionary;

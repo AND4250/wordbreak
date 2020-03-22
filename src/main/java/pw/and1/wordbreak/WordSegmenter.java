@@ -5,43 +5,42 @@ import pw.and1.wordbreak.util.CollectionUtils;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
-import java.util.StringJoiner;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class WordBreak {
+public class WordSegmenter {
     public enum SearchMode {
-        ALL, ONLY_PUBLIC, ONLY_USER;
+        ALL, ONLY_PUBLIC, ONLY_USER
     }
 
-    public static class WordBreakBuilder {
+    public static class WordSegmenterBuilder {
         private Dictionary publicDictionary;
         private Dictionary userDictionary;
 
-        public WordBreakBuilder withPublicDictionary(Dictionary dictionary) {
+        public WordSegmenterBuilder withPublicDictionary(Dictionary dictionary) {
             this.publicDictionary = dictionary;
             return this;
         }
 
-        public WordBreakBuilder withUserDictionary(Dictionary dictionary) {
+        public WordSegmenterBuilder withUserDictionary(Dictionary dictionary) {
             this.userDictionary = dictionary;
             return this;
         }
 
-        public WordBreak build() {
-            return new WordBreak(publicDictionary, userDictionary);
+        public WordSegmenter build() {
+            return new WordSegmenter(publicDictionary, userDictionary);
         }
     }
 
-    public static WordBreakBuilder newBuilder() {
-        return new WordBreakBuilder();
+    public static WordSegmenterBuilder newBuilder() {
+        return new WordSegmenterBuilder();
     }
 
     private Dictionary publicDictionary;
     private Dictionary userDictionary;
 
-    private WordBreak(Dictionary publicDictionary, Dictionary userDictionary) {
+    private WordSegmenter(Dictionary publicDictionary, Dictionary userDictionary) {
         this.publicDictionary = publicDictionary;
         this.userDictionary = userDictionary;
     }
@@ -110,12 +109,7 @@ public class WordBreak {
         return CollectionUtils.descartes(result);
     }
 
-    public WordBreak setPublicDictionary(Dictionary dictionary) {
-        publicDictionary = dictionary;
-        return this;
-    }
-
-    public WordBreak setUserDictionary(Dictionary dictionary) {
+    public WordSegmenter setUserDictionary(Dictionary dictionary) {
         userDictionary = dictionary;
         return this;
     }
@@ -123,7 +117,7 @@ public class WordBreak {
     private Dictionary selectDictionary(SearchMode mode) {
         switch (mode) {
             case ALL:
-                return Dictionary.merge(publicDictionary, userDictionary);
+                return Dictionary.newBuilder().appendDictionary(publicDictionary, userDictionary).build();
             case ONLY_USER:
                 return userDictionary;
             case ONLY_PUBLIC:

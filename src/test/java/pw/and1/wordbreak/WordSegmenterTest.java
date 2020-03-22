@@ -6,10 +6,10 @@ import org.junit.Test;
 
 import java.util.List;
 
-public class WordBreakTest {
+public class WordSegmenterTest {
     private Dictionary publicDictionary;
     private Dictionary userDictionary;
-    private WordBreak wordBreak;
+    private WordSegmenter wordSegmenter;
 
     @Before
     public void init() {
@@ -21,7 +21,7 @@ public class WordBreakTest {
                 .appendDictionary("i", "like", "sam", "sung", "mobile", "icecream", "man go", "mango")
                 .build();
 
-        wordBreak = WordBreak.newBuilder()
+        wordSegmenter = WordSegmenter.newBuilder()
                 .withPublicDictionary(publicDictionary)
                 .withUserDictionary(userDictionary)
                 .build();
@@ -34,12 +34,12 @@ public class WordBreakTest {
      */
     @Test
     public void testWordBreak1() {
-        List<String> result = wordBreak.wordBreak("ilikesamsungmobile", WordBreak.SearchMode.ONLY_PUBLIC);
+        List<String> result = wordSegmenter.wordBreak("ilikesamsungmobile", WordSegmenter.SearchMode.ONLY_PUBLIC);
         Assert.assertTrue(result.size() == 2);
         Assert.assertEquals("i like sam sung mobile", result.get(0));
         Assert.assertEquals("i like samsung mobile", result.get(1));
 
-        result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ONLY_PUBLIC);
+        result = wordSegmenter.wordBreak("ilikeicecreamandmango", WordSegmenter.SearchMode.ONLY_PUBLIC);
         Assert.assertTrue(result.size() == 1);
         Assert.assertEquals("i like ice cream and man go", result.get(0));
     }
@@ -51,11 +51,11 @@ public class WordBreakTest {
      */
     @Test
     public void testWordBreak2() {
-        List<String> result = wordBreak.wordBreak("ilikesamsungmobile", WordBreak.SearchMode.ONLY_USER);
+        List<String> result = wordSegmenter.wordBreak("ilikesamsungmobile", WordSegmenter.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 1);
         Assert.assertEquals("i like sam sung mobile", result.get(0));
 
-        result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ONLY_USER);
+        result = wordSegmenter.wordBreak("ilikeicecreamandmango", WordSegmenter.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 2);
         Assert.assertEquals("i like icecream and man go", result.get(0));
         Assert.assertEquals("i like icecream and mango", result.get(1));
@@ -68,12 +68,12 @@ public class WordBreakTest {
      */
     @Test
     public void testWordBreak3() {
-        List<String> result = wordBreak.wordBreak("ilikesamsungmobile", WordBreak.SearchMode.ALL);
+        List<String> result = wordSegmenter.wordBreak("ilikesamsungmobile", WordSegmenter.SearchMode.ALL);
         Assert.assertTrue(result.size() == 2);
         Assert.assertEquals("i like sam sung mobile", result.get(0));
         Assert.assertEquals("i like samsung mobile", result.get(1));
 
-        result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ALL);
+        result = wordSegmenter.wordBreak("ilikeicecreamandmango", WordSegmenter.SearchMode.ALL);
         Assert.assertTrue(result.size() == 4);
         Assert.assertEquals("i like icecream and man go", result.get(0));
         Assert.assertEquals("i like icecream and mango", result.get(1));
@@ -86,9 +86,9 @@ public class WordBreakTest {
         Dictionary userDictionary = Dictionary.newBuilder()
                 .appendDictionary("i", "like", "sam", "sung", "mobile", "icecream", "man go")
                 .build();
-        wordBreak.setUserDictionary(userDictionary);
+        wordSegmenter.setUserDictionary(userDictionary);
 
-        List<String> result = wordBreak.wordBreak("ilikeicecreamandmango", WordBreak.SearchMode.ONLY_USER);
+        List<String> result = wordSegmenter.wordBreak("ilikeicecreamandmango", WordSegmenter.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 1);
         Assert.assertEquals("i like icecream and man go", result.get(0));
     }
@@ -98,9 +98,9 @@ public class WordBreakTest {
         Dictionary userDictionary = Dictionary.newBuilder()
                 .appendDictionary("i", "like", "sam", "sung", "samsung", "mobile", "samsungmobile", "icecream", "man go")
                 .build();
-        wordBreak.setUserDictionary(userDictionary);
+        wordSegmenter.setUserDictionary(userDictionary);
 
-        List<String> result = wordBreak.wordBreak("youlikesamsungmobile", WordBreak.SearchMode.ONLY_USER);
+        List<String> result = wordSegmenter.wordBreak("youlikesamsungmobile", WordSegmenter.SearchMode.ONLY_USER);
         Assert.assertTrue(result.size() == 3);
         Assert.assertEquals("you like samsungmobile", result.get(0));
         Assert.assertEquals("you like samsung mobile", result.get(1));
@@ -112,9 +112,9 @@ public class WordBreakTest {
         Dictionary userDictionary = Dictionary.newBuilder()
                 .appendDictionary("i", "like", "sam", "sung", "samsung", "mobile", "samsungmobile", "ice", "cream", "icecream", "mango")
                 .build();
-        wordBreak.setUserDictionary(userDictionary);
+        wordSegmenter.setUserDictionary(userDictionary);
 
-        List<String> result = wordBreak.wordBreak("youlikesamsungmobileandicecreamandmango", WordBreak.SearchMode.ALL);
+        List<String> result = wordSegmenter.wordBreak("youlikesamsungmobileandicecreamandmango", WordSegmenter.SearchMode.ALL);
         Assert.assertTrue(result.size() == 12);
         Assert.assertEquals("you like samsungmobile and icecream and man go", result.get(0));
         Assert.assertEquals("you like samsungmobile and icecream and mango", result.get(1));
