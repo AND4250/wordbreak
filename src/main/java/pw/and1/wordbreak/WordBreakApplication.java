@@ -1,5 +1,7 @@
 package pw.and1.wordbreak;
 
+import pw.and1.wordbreak.component.Dictionary;
+
 import java.util.Collection;
 import java.util.List;
 

@@ -3,7 +3,7 @@ package pw.and1.wordbreak;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
+import pw.and1.wordbreak.component.Dictionary;
 import java.util.List;
 
 public class WordSegmenterTest {
